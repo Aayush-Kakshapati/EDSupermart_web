@@ -58,7 +58,7 @@ export default function OwnerDashboard() {
             <div>
               <p className="font-medium">{product.name}</p>
               <p className="text-sm text-gray-500">
-                ${product.price} · {product.stock} in stock · {product.category}
+                Rs.{product.price} · {product.stock} in stock · {product.category}
               </p>
             </div>
             <div className="flex gap-3 text-sm">

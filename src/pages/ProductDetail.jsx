@@ -60,7 +60,7 @@ export default function ProductDetail() {
         <p className="text-sm text-gray-700 mb-4">{product.description}</p>
       )}
 
-      <p className="font-semibold text-lg mb-1">${product.price}</p>
+      <p className="font-semibold text-lg mb-1">Rs.{product.price}</p>
       <p className="text-sm text-gray-500 mb-4">
         {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
       </p>
