@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProduct, buyProduct } from "../api/products";
+import { addCartItems } from "../api/cart"; // see note below
 import { useAuth } from "../hooks/useAuth";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     getProduct(id)
@@ -41,6 +42,24 @@ export default function ProductDetail() {
     }
   };
 
+  const handleAddToCart = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    setError("");
+    setMessage("");
+    setAddingToCart(true);
+    try {
+      await addCartItems(id, quantity);
+      setMessage(`Added ${quantity} item(s) to cart.`);
+    } catch (err) {
+      setError(err.response?.data?.error || "Could not add to cart");
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
   if (loading) return <p className="text-sm text-gray-500 px-6 py-8">Loading...</p>;
   if (error && !product) return <p className="text-sm text-red-600 px-6 py-8">{error}</p>;
 
@@ -53,18 +72,15 @@ export default function ProductDetail() {
           className="w-full h-56 object-cover rounded mb-4"
         />
       )}
-
       <h1 className="text-xl font-semibold">{product.name}</h1>
       <p className="text-sm text-gray-500 capitalize mb-2">{product.category}</p>
       {product.description && (
         <p className="text-sm text-gray-700 mb-4">{product.description}</p>
       )}
-
-      <p className="font-semibold text-lg mb-1">Rs.{product.price}</p>
+      <p className="font-semibold text-lg mb-1">Rs. {product.price}</p>
       <p className="text-sm text-gray-500 mb-4">
         {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
       </p>
-
       {product.stock > 0 && (
         <div className="flex items-center gap-3 mb-4">
           <label className="text-sm">Quantity</label>
@@ -78,17 +94,24 @@ export default function ProductDetail() {
           />
         </div>
       )}
-
       {message && <p className="text-green-600 text-sm mb-2">{message}</p>}
       {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
-
-      <button
-        onClick={handleBuy}
-        disabled={product.stock <= 0 || buying}
-        className="bg-black text-white rounded px-4 py-2 text-sm disabled:opacity-50"
-      >
-        {buying ? "Processing..." : product.stock <= 0 ? "Out of stock" : "Buy"}
-      </button>
+      <div className="flex gap-3">
+        <button
+          onClick={handleAddToCart}
+          disabled={product.stock <= 0 || addingToCart}
+          className="border border-black text-black rounded px-4 py-2 text-sm disabled:opacity-50"
+        >
+          {addingToCart ? "Adding..." : "Add to Cart"}
+        </button>
+        <button
+          onClick={handleBuy}
+          disabled={product.stock <= 0 || buying}
+          className="bg-black text-white rounded px-4 py-2 text-sm disabled:opacity-50"
+        >
+          {buying ? "Processing..." : product.stock <= 0 ? "Out of stock" : "Buy Now"}
+        </button>
+      </div>
     </div>
   );
 }

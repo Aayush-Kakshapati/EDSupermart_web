@@ -26,6 +26,7 @@ export default function Navbar() {
         {user ? (
           <>
             <span className="text-gray-500">{user.username}</span>
+            <Link to='/cart' className="text-gray-500">Cart</Link>
             <button
               onClick={handleLogout}
               className="text-gray-700 hover:text-black"

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import OwnerRoute from "./routes/OwnerRoute";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -9,6 +10,7 @@ import ProductDetail from "./pages/ProductDetail";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import OwnerProductForm from "./pages/OwnerProductForm";
 import NotFound from "./pages/NotFound";
+import Cart from "./pages/Cart";
 
 export default function App() {
   return (
@@ -20,6 +22,15 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
+
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/owner"
