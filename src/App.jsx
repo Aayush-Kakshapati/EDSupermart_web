@@ -13,6 +13,8 @@ import NotFound from "./pages/NotFound";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import OrderDetail from "./pages/OrderDetail";
+import Notifications from "./pages/Notifications";
+
 
 export default function App() {
   return (
@@ -74,6 +76,15 @@ export default function App() {
             <OwnerRoute>
               <OwnerProductForm />
             </OwnerRoute>
+          }
+        />
+
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
           }
         />
 

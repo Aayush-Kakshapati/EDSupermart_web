@@ -101,11 +101,11 @@ export default function OrderDetail() {
           </div>
           <div>
             <p className="text-gray-500">Address</p>
-            <p className="font-medium">{order.user?.address || "Not provided"}</p>
+            <p className="font-medium">{order.address || "Not provided"}</p>
           </div>
           <div>
-            <p className="text-gray-500">Total Amount</p>
-            <p className="font-semibold text-lg">Rs. {Number(order.total_amount).toFixed(2)}</p>
+            <p className="text-gray-500">Phone Number</p>
+            <p className="font-medium">{order.phone || "Not provided"}</p>
           </div>
         </div>
       </div>
