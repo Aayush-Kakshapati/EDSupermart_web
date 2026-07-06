@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCart, deleteCartItem } from "../api/cart";
+import { createOrder } from "../api/orders";
 import { useNavigate } from "react-router-dom";
-import { buyProduct } from "../api/products";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Cart() {
@@ -52,31 +52,35 @@ export default function Cart() {
     setMessage("");
     setCheckingOut(true);
 
-    const failed = [];
-    for (const item of cartItems) {
-      try {
-        await buyProduct(item.product.id, item.quantity);
-        await deleteCartItem(item.id);
-      } catch {
-        failed.push(item.product.name);
-      }
-    }
+    try {
+      const items = cartItems.map((item) => ({
+        product_id: item.product.id,
+        quantity: item.quantity,
+      }));
 
-    setCheckingOut(false);
-    if (failed.length === 0) {
-      setMessage("Checkout complete — all items purchased.");
+      await createOrder({ items });
+
+      setMessage("Order placed successfully!");
+      setCartItems([]);
       setTimeout(() => {
         setMessage("");
-      }, 3000);
-      setCartItems([]);
-    } else {
-      setError(`Some items failed to purchase: ${failed.join(", ")}`);
-      loadCart();
+        navigate("/orders");
+      }, 1500);
+    } catch (err) {
+      const data = err.response?.data;
+      const detail =
+        data?.error ||
+        data?.items?.[0] ||
+        (typeof data === "object" ? Object.values(data).flat()[0] : null);
+      setError(detail || "Could not place order. Please try again.");
+      setTimeout(() => setError(""), 5000);
+    } finally {
+      setCheckingOut(false);
     }
   };
 
   const total = cartItems.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => sum + Number(item.product.price) * Number(item.quantity),
     0,
   );
 

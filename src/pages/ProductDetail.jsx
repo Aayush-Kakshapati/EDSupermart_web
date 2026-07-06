@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProduct, buyProduct } from "../api/products";
-import { addCartItems } from "../api/cart"; // see note below
+import { getProduct } from "../api/products";
+import { createOrder } from "../api/orders";
 import { useAuth } from "../hooks/useAuth";
 
 export default function ProductDetail() {
@@ -13,8 +13,7 @@ export default function ProductDetail() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
-  const [buying, setBuying] = useState(false);
-  const [addingToCart, setAddingToCart] = useState(false);
+  const [placingOrder, setPlacingOrder] = useState(false);
 
   useEffect(() => {
     getProduct(id)
@@ -30,33 +29,22 @@ export default function ProductDetail() {
     }
     setError("");
     setMessage("");
-    setBuying(true);
+    setPlacingOrder(true);
     try {
-      const res = await buyProduct(id, quantity);
-      setProduct(res.data.product);
-      setMessage(`Purchased ${res.data.quantity_purchased} item(s) successfully.`);
+      await createOrder({
+        items: [{ product_id: Number(id), quantity }],
+      });
+      setMessage("Order placed successfully!");
+      setTimeout(() => navigate("/orders"), 1500);
     } catch (err) {
-      setError(err.response?.data?.error || "Purchase failed");
+      const data = err.response?.data;
+      const detail =
+        data?.error ||
+        data?.items?.[0] ||
+        (typeof data === "object" ? Object.values(data).flat()[0] : null);
+      setError(detail || "Could not place order");
     } finally {
-      setBuying(false);
-    }
-  };
-
-  const handleAddToCart = async () => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    setError("");
-    setMessage("");
-    setAddingToCart(true);
-    try {
-      await addCartItems(id, quantity);
-      setMessage(`Added ${quantity} item(s) to cart.`);
-    } catch (err) {
-      setError(err.response?.data?.error || "Could not add to cart");
-    } finally {
-      setAddingToCart(false);
+      setPlacingOrder(false);
     }
   };
 
@@ -98,18 +86,11 @@ export default function ProductDetail() {
       {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
       <div className="flex gap-3">
         <button
-          onClick={handleAddToCart}
-          disabled={product.stock <= 0 || addingToCart}
-          className="border border-black text-black rounded px-4 py-2 text-sm disabled:opacity-50"
-        >
-          {addingToCart ? "Adding..." : "Add to Cart"}
-        </button>
-        <button
           onClick={handleBuy}
-          disabled={product.stock <= 0 || buying}
+          disabled={product.stock <= 0 || placingOrder}
           className="bg-black text-white rounded px-4 py-2 text-sm disabled:opacity-50"
         >
-          {buying ? "Processing..." : product.stock <= 0 ? "Out of stock" : "Buy Now"}
+          {placingOrder ? "Placing order..." : product.stock <= 0 ? "Out of stock" : "Buy Now"}
         </button>
       </div>
     </div>

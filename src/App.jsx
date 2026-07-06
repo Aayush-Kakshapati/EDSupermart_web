@@ -11,6 +11,8 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import OwnerProductForm from "./pages/OwnerProductForm";
 import NotFound from "./pages/NotFound";
 import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
+import OrderDetail from "./pages/OrderDetail";
 
 export default function App() {
   return (
@@ -28,6 +30,24 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Cart />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/orders/:id"
+          element={
+            <ProtectedRoute>
+              <OrderDetail />
             </ProtectedRoute>
           }
         />
